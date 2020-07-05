@@ -48,7 +48,7 @@ public class Test {
     public boolean login(){
         InitAndLogin.init(disConnect, haveReConnect);
 
-        boolean result = InitAndLogin.login("192.168.1.10",
+        boolean result = InitAndLogin.login("192.168.1.66",
                 Integer.parseInt("37777"), "admin",
                 new String("admin888"));
         if(result){
@@ -82,34 +82,20 @@ public class Test {
                           Pointer pAlarmInfo, Pointer pBuffer, int dwBufSize,
                           Pointer dwUser, int nSequence, Pointer reserved)
         {
-            if (lAnalyzerHandle.longValue() == 0 || pAlarmInfo == null) {
-                return -1;
+            NetSDKLib.DEV_EVENT_FACEDETECT_INFO msg = new NetSDKLib.DEV_EVENT_FACEDETECT_INFO();
+
+            ToolKits.GetPointerData(pAlarmInfo, msg);
+
+            // 保存图片，获取图片缓存
+            try {
+                saveFaceDetectPic(pBuffer, dwBufSize, msg);
+            } catch (Exception e) {
+                 e.printStackTrace();
             }
 
-            switch(dwAlarmType)
-            {
-                case NetSDKLib.EVENT_IVS_FACEDETECT:   ///< 人脸检测
-                {
-                    NetSDKLib.DEV_EVENT_FACEDETECT_INFO msg = new NetSDKLib.DEV_EVENT_FACEDETECT_INFO();
-
-                    ToolKits.GetPointerData(pAlarmInfo, msg);
-
-                    // 保存图片，获取图片缓存
-                    try {
-                        saveFaceDetectPic(pBuffer, dwBufSize, msg);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-
-                    // 释放内存
-                    msg = null;
-                    System.gc();
-
-                    break;
-                }
-                default:
-                    break;
-            }
+            // 释放内存
+            msg = null;
+            System.gc();
 
             return 0;
         }
